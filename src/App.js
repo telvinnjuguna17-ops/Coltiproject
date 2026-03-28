@@ -6,6 +6,7 @@ import Addproducts from './components/Addproducts';
 import Getproducts from './components/Getproducts';
 import Notfound from './components/Notfound';
 import Makepayment from './components/Makepayment';
+import Aboutus from './components/Aboutus';
 
 const styles = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -321,6 +322,12 @@ const slides = [
     title: <>The Art of <span>Perfection</span></>,
     sub: "Watch master engineers breathe life into elegant road monsters",
   },
+  {
+    src: "/videos/vintage-car-5.mp4",
+    label: "Latest Tech",
+    title: <>Listen to the <span>Story</span></>,
+    sub: "Each car has a story watch as we make it louder,prouder and bolder",
+  },
 ];
 
 function Navbar() {
@@ -403,6 +410,7 @@ function Layout({ children, showHero }) {
           <Link to="/addproducts">Add Car</Link>
           <Link to="/signin">Sign In</Link>
           <Link to="/signup">Register</Link>
+          <Link to="/aboutus">Aboutus</Link>
         </div>
       </footer>
     </>
@@ -421,6 +429,7 @@ function AppRoutes() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/addproducts" element={<Addproducts />} />
         <Route path="/makepayment" element={<Makepayment />} />
+        <Route path="/aboutus" element={<Aboutus/>} />
         <Route path="*" element={<Notfound />} />
       </Routes>
     </Layout>
