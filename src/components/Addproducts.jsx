@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Loader from './Loader';
 import axios from 'axios';
 
@@ -80,7 +81,6 @@ const styles = `
   .status-success { color: #4ade80; background: rgba(74,222,128,0.1); }
   .status-error   { color: #f87171; background: rgba(248,113,113,0.1); }
 
-  /* ── Text inputs ── */
   .input-box {
     position: relative;
     margin: 12px 0;
@@ -125,7 +125,6 @@ const styles = `
     color: #fff;
   }
 
-  /* ── File input ── */
   .file-box {
     margin: 12px 0;
   }
@@ -157,7 +156,6 @@ const styles = `
     color: #fff;
   }
 
-  /* ── Submit button ── */
   .add-btn {
     width: 100%;
     height: 42px;
@@ -180,17 +178,35 @@ const styles = `
 `;
 
 const Addproducts = () => {
+  const navigate = useNavigate();
+
   const [product_name, setProductName] = useState("");
   const [product_description, setProductDescription] = useState("");
   const [product_cost, setProductCost] = useState("");
-  const [product_photo, setProductPhoto] = useState("");
+  const [product_photo, setProductPhoto] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
+  // ── Auth guard: redirect to /signin if not logged in ──
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/signin", { replace: true });
+    }
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Runtime guard in case user logs out in another tab
+    const user = localStorage.getItem("user");
+    if (!user) {
+      navigate("/signin", { replace: true });
+      return;
+    }
+
     setLoading(true);
     setError("");
     setSuccess("");
@@ -202,20 +218,23 @@ const Addproducts = () => {
       formdata.append("product_cost", product_cost);
       formdata.append("product_photo", product_photo);
 
-      const response = await axios.post("https://telvin.alwaysdata.net/api/add_product", formdata);
+      const response = await axios.post(
+        "https://telvin.alwaysdata.net/api/add_product",
+        formdata
+      );
 
       setLoading(false);
       setSuccess(response.data.message);
       setProductName("");
       setProductDescription("");
       setProductCost("");
-      setProductPhoto("");
+      setProductPhoto(null);
       e.target.reset();
 
       setTimeout(() => setSuccess(""), 5000);
-    } catch (error) {
+    } catch (err) {
       setLoading(false);
-      setError(error.message);
+      setError(err.message);
     }
   };
 

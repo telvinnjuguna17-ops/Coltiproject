@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import Signin from './components/Signin';
 import Signup from './components/Signup';
 import Addproducts from './components/Addproducts';
@@ -92,6 +92,27 @@ const styles = `
     background: #ddd;
     border-color: #ddd;
     color: #000;
+  }
+
+  /* ── Logout button in navbar ── */
+  .nav-logout-btn {
+    font-size: 0.8em;
+    color: #f87171;
+    background: transparent;
+    border: 1px solid #3a1a1a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .nav-logout-btn:hover {
+    color: #fff;
+    background: #f87171;
+    border-color: #f87171;
   }
 
   /* ── Hero Carousel ── */
@@ -332,6 +353,21 @@ const slides = [
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Re-check auth on every route change so navbar updates instantly
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("user"));
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setIsLoggedIn(false);
+    navigate("/signin", { replace: true });
+  };
+
   return (
     <nav className="navbar">
       <Link className="navbar-brand" to="/">
@@ -341,8 +377,20 @@ function Navbar() {
       <ul className="navbar-links">
         <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>Showroom</Link></li>
         <li><Link to="/addproducts" className={location.pathname === '/addproducts' ? 'active' : ''}>Add Car</Link></li>
-        <li><Link to="/signup" className={location.pathname === '/signup' ? 'active' : ''}>Register</Link></li>
-        <li><Link to="/signin" className={`nav-cta ${location.pathname === '/signin' ? 'active' : ''}`}>Sign In</Link></li>
+
+        {/* Show Register + Sign In when logged out; Sign Out when logged in */}
+        {isLoggedIn ? (
+          <li>
+            <button className="nav-logout-btn" onClick={handleLogout}>
+              Sign Out
+            </button>
+          </li>
+        ) : (
+          <>
+            <li><Link to="/signup" className={location.pathname === '/signup' ? 'active' : ''}>Register</Link></li>
+            <li><Link to="/signin" className={`nav-cta ${location.pathname === '/signin' ? 'active' : ''}`}>Sign In</Link></li>
+          </>
+        )}
       </ul>
     </nav>
   );
