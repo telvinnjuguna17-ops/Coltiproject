@@ -125,6 +125,73 @@ const styles = `
     color: #fff;
   }
 
+  /* ── Category Select ── */
+  .select-box {
+    position: relative;
+    margin: 12px 0;
+  }
+  .select-box select {
+    width: 100%;
+    height: 42px;
+    background: transparent;
+    border: 1.5px solid #333;
+    outline: none;
+    border-radius: 40px;
+    font-size: 0.9em;
+    color: #fff;
+    padding: 0 38px 0 15px;
+    transition: border-color 0.35s, box-shadow 0.35s;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+  }
+  .select-box select:focus {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
+  }
+  /* Style the default (empty) option as placeholder */
+  .select-box select option[value=""] {
+    color: #555;
+  }
+  .select-box select option {
+    background: #111;
+    color: #fff;
+  }
+  /* Floating label for select */
+  .select-box .select-label {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    font-size: 0.88em;
+    pointer-events: none;
+    transition: all 0.3s ease;
+    color: #555;
+  }
+  .select-box.has-value .select-label,
+  .select-box select:focus ~ .select-label {
+    top: -9px;
+    font-size: 0.7em;
+    background: #0a0a0a;
+    padding: 0 6px;
+    color: #fff;
+  }
+  /* Custom chevron icon */
+  .select-chevron {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #555;
+    transition: color 0.3s, transform 0.3s;
+  }
+  .select-box select:focus ~ .select-chevron {
+    color: #fff;
+    transform: translateY(-50%) rotate(180deg);
+  }
+
   .file-box {
     margin: 12px 0;
   }
@@ -177,12 +244,26 @@ const styles = `
   .add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 `;
 
+const CATEGORIES = [
+  "Classic Sedan",
+  "Classic Coupe",
+  "Classic Convertible",
+  "Classic Pickup / Truck",
+  "Classic SUV / 4x4",
+  "Vintage Muscle Car",
+  "Vintage Sports Car",
+  "Vintage Off-Road",
+  "Antique / Pre-War",
+  "Restomod",
+];
+
 const Addproducts = () => {
   const navigate = useNavigate();
 
   const [product_name, setProductName] = useState("");
   const [product_description, setProductDescription] = useState("");
   const [product_cost, setProductCost] = useState("");
+  const [product_category, setProductCategory] = useState("");
   const [product_photo, setProductPhoto] = useState(null);
 
   const [loading, setLoading] = useState(false);
@@ -216,6 +297,7 @@ const Addproducts = () => {
       formdata.append("product_name", product_name);
       formdata.append("product_description", product_description);
       formdata.append("product_cost", product_cost);
+      formdata.append("product_category", product_category);
       formdata.append("product_photo", product_photo);
 
       const response = await axios.post(
@@ -228,6 +310,7 @@ const Addproducts = () => {
       setProductName("");
       setProductDescription("");
       setProductCost("");
+      setProductCategory("");
       setProductPhoto(null);
       e.target.reset();
 
@@ -287,6 +370,34 @@ const Addproducts = () => {
                   onChange={(e) => setProductCost(e.target.value)}
                 />
                 <label>Price (KES)</label>
+              </div>
+
+              {/* ── Category Dropdown ── */}
+              <div className={`select-box${product_category ? " has-value" : ""}`}>
+                <select
+                  required
+                  value={product_category}
+                  onChange={(e) => setProductCategory(e.target.value)}
+                >
+                  <option value="" disabled hidden></option>
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+                <span className="select-label">Category</span>
+                <svg
+                  className="select-chevron"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
               </div>
 
               <div className="file-box">

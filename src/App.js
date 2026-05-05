@@ -7,6 +7,8 @@ import Getproducts from './components/Getproducts';
 import Notfound from './components/Notfound';
 import Makepayment from './components/Makepayment';
 import Aboutus from './components/Aboutus';
+import Chatbot from './components/ColtichatBot';
+
 
 const styles = `
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -298,7 +300,7 @@ const styles = `
 
   .footer-copy {
     font-size: 0.75em;
-    color: #333;
+    color: #9b9595;
     letter-spacing: 0.5px;
   }
 
@@ -309,7 +311,7 @@ const styles = `
 
   .footer-links a {
     font-size: 0.75em;
-    color: #333;
+    color: #9b9595;
     text-decoration: none;
     letter-spacing: 0.5px;
     transition: color 0.2s;
@@ -355,7 +357,6 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Re-check auth on every route change so navbar updates instantly
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
 
   useEffect(() => {
@@ -377,8 +378,8 @@ function Navbar() {
       <ul className="navbar-links">
         <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>Showroom</Link></li>
         <li><Link to="/addproducts" className={location.pathname === '/addproducts' ? 'active' : ''}>Add Car</Link></li>
+        <li><Link to="/chatbot" className={location.pathname === '/chatbot' ? 'active' : ''}>Talk to us</Link></li>
 
-        {/* Show Register + Sign In when logged out; Sign Out when logged in */}
         {isLoggedIn ? (
           <li>
             <button className="nav-logout-btn" onClick={handleLogout}>
@@ -398,9 +399,16 @@ function Navbar() {
 
 function Hero() {
   const [current, setCurrent] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
   const timerRef = useRef(null);
+  const location = useLocation();
 
   const goTo = (idx) => setCurrent((idx + slides.length) % slides.length);
+
+  // Re-check login status on route change
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("user"));
+  }, [location]);
 
   useEffect(() => {
     timerRef.current = setInterval(() => {
@@ -423,7 +431,9 @@ function Hero() {
         <p className="hero-subtitle">{slides[current].sub}</p>
         <div className="hero-actions">
           <Link to="/" className="hero-btn-primary">Browse Cars</Link>
-          <Link to="/signup" className="hero-btn-secondary">Join Us</Link>
+          {!isLoggedIn && (
+            <Link to="/signup" className="hero-btn-secondary">Join Us</Link>
+          )}
         </div>
       </div>
 
@@ -478,6 +488,7 @@ function AppRoutes() {
         <Route path="/addproducts" element={<Addproducts />} />
         <Route path="/makepayment" element={<Makepayment />} />
         <Route path="/aboutus" element={<Aboutus/>} />
+        <Route path="/chatbot" element={<Chatbot />} />
         <Route path="*" element={<Notfound />} />
       </Routes>
     </Layout>
