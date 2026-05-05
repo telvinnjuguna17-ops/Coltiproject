@@ -430,7 +430,17 @@ function Hero() {
         <h1 className="hero-title">{slides[current].title}</h1>
         <p className="hero-subtitle">{slides[current].sub}</p>
         <div className="hero-actions">
-          <Link to="/" className="hero-btn-primary">Browse Cars</Link>
+          <a
+            href="/#showroom"
+            className="hero-btn-primary"
+            onClick={(e) => {
+              e.preventDefault();
+              const el = document.getElementById("showroom");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            }}
+          >
+            Browse Cars
+          </a>
           {!isLoggedIn && (
             <Link to="/signup" className="hero-btn-secondary">Join Us</Link>
           )}

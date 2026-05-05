@@ -78,48 +78,7 @@ const styles = `
   }
   .search-clear:hover { color: #fff; }
 
-  /* ── Category Filter ── */
-  .category-scroll {
-    width: 100%;
-    max-width: 700px;
-    overflow-x: auto;
-    margin-bottom: 14px;
-    padding-bottom: 4px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .category-scroll::-webkit-scrollbar { display: none; }
-  .category-tabs {
-    display: flex;
-    gap: 8px;
-    width: max-content;
-    padding: 0 2px;
-  }
-  .category-tab {
-    height: 32px;
-    padding: 0 16px;
-    border-radius: 40px;
-    border: 1.5px solid #222;
-    background: transparent;
-    color: #555;
-    font-size: 0.78em;
-    font-family: 'Segoe UI', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: border-color 0.25s, color 0.25s, background 0.25s;
-  }
-  .category-tab:hover {
-    border-color: #555;
-    color: #aaa;
-  }
-  .category-tab.active {
-    background: #fff;
-    border-color: #fff;
-    color: #000;
-  }
+
 
   .search-count {
     text-align: center;
@@ -226,26 +185,11 @@ const styles = `
   .purchase-btn:active { transform: scale(0.98); }
 `;
 
-const CATEGORIES = [
-  "All",
-  "Classic Sedan",
-  "Classic Coupe",
-  "Classic Convertible",
-  "Classic Pickup / Truck",
-  "Classic SUV / 4x4",
-  "Vintage Muscle Car",
-  "Vintage Sports Car",
-  "Vintage Off-Road",
-  "Antique / Pre-War",
-  "Restomod",
-];
-
 const Getproducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
 
   const navigate = useNavigate();
   const img_url = "https://telvin.alwaysdata.net/static/images/";
@@ -266,30 +210,10 @@ const Getproducts = () => {
     fetchProducts();
   }, []);
 
-  // Only show category tabs that have at least one product (plus "All")
-  const availableCategories = CATEGORIES.filter(
-    (cat) =>
-      cat === "All" ||
-      products.some(
-        (p) => (p.product_category || "").toLowerCase() === cat.toLowerCase()
-      )
+  const filteredProducts = products.filter((product) =>
+    product.product_name.toLowerCase().includes(search.toLowerCase()) ||
+    product.product_description.toLowerCase().includes(search.toLowerCase())
   );
-
-  // Filter by category then by search
-  const filteredProducts = products.filter((product) => {
-    const matchesCategory =
-      activeCategory === "All" ||
-      (product.product_category || "").toLowerCase() === activeCategory.toLowerCase();
-    const matchesSearch =
-      product.product_name.toLowerCase().includes(search.toLowerCase()) ||
-      product.product_description.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  const handleCategoryChange = (cat) => {
-    setActiveCategory(cat);
-    setSearch("");
-  };
 
   return (
     <>
@@ -299,7 +223,7 @@ const Getproducts = () => {
         <div className="products-subline" />
 
         {/* Search bar */}
-        <div className="search-wrapper">
+        <div className="search-wrapper" id="showroom">
           <span className="search-icon">&#128269;</span>
           <input
             type="text"
@@ -315,28 +239,10 @@ const Getproducts = () => {
           )}
         </div>
 
-        {/* Category filter tabs */}
-        {!loading && availableCategories.length > 1 && (
-          <div className="category-scroll">
-            <div className="category-tabs">
-              {availableCategories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`category-tab${activeCategory === cat ? " active" : ""}`}
-                  onClick={() => handleCategoryChange(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Result count */}
         {!loading && products.length > 0 && (
           <p className="search-count">
             Showing <span>{filteredProducts.length}</span> of <span>{products.length}</span> cars
-            {activeCategory !== "All" && <> in <span>{activeCategory}</span></>}
             {search && <> for &ldquo;<span>{search}</span>&rdquo;</>}
           </p>
         )}
@@ -345,12 +251,10 @@ const Getproducts = () => {
         {error && <p className="status-error">{error}</p>}
 
         {/* No results */}
-        {!loading && filteredProducts.length === 0 && (search || activeCategory !== "All") && (
+        {!loading && filteredProducts.length === 0 && search && (
           <div className="no-results">
             <strong>&#9785;</strong>
-            No cars found
-            {activeCategory !== "All" && <> in &ldquo;{activeCategory}&rdquo;</>}
-            {search && <> for &ldquo;{search}&rdquo;</>}
+            No cars found for &ldquo;{search}&rdquo;
           </div>
         )}
 
