@@ -8,6 +8,8 @@ import Notfound from './components/Notfound';
 import Makepayment from './components/Makepayment';
 import Aboutus from './components/Aboutus';
 import Chatbot from './components/ColtichatBot';
+import AdminDashboard from './components/Admindashboard';
+import UserDashboard from './components/Userdashboard';
 
 
 const styles = `
@@ -358,14 +360,18 @@ function Navbar() {
   const navigate = useNavigate();
 
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("user"));
+  const [role, setRole] = useState(localStorage.getItem("role") || "");
 
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("user"));
+    setRole(localStorage.getItem("role") || "");
   }, [location]);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
     setIsLoggedIn(false);
+    setRole("");
     navigate("/signin", { replace: true });
   };
 
@@ -377,15 +383,34 @@ function Navbar() {
       </Link>
       <ul className="navbar-links">
         <li><Link to="/" className={location.pathname === '/' ? 'active' : ''}>Showroom</Link></li>
-        <li><Link to="/addproducts" className={location.pathname === '/addproducts' ? 'active' : ''}>Add Car</Link></li>
+
+        {/* Add Car — admin only */}
+        {role === "admin" && (
+          <li><Link to="/addproducts" className={location.pathname === '/addproducts' ? 'active' : ''}>Add Car</Link></li>
+        )}
+
         <li><Link to="/chatbot" className={location.pathname === '/chatbot' ? 'active' : ''}>Talk to us</Link></li>
 
         {isLoggedIn ? (
-          <li>
-            <button className="nav-logout-btn" onClick={handleLogout}>
-              Sign Out
-            </button>
-          </li>
+          <>
+            {/* Dashboard link based on role */}
+            <li>
+              <Link
+                to={role === "admin" ? "/admindashboard" : "/userdashboard"}
+                className={
+                  location.pathname === '/admindashboard' || location.pathname === '/userdashboard'
+                    ? 'active' : ''
+                }
+              >
+                Dashboard
+              </Link>
+            </li>
+            <li>
+              <button className="nav-logout-btn" onClick={handleLogout}>
+                Sign Out
+              </button>
+            </li>
+          </>
         ) : (
           <>
             <li><Link to="/signup" className={location.pathname === '/signup' ? 'active' : ''}>Register</Link></li>
@@ -405,7 +430,6 @@ function Hero() {
 
   const goTo = (idx) => setCurrent((idx + slides.length) % slides.length);
 
-  // Re-check login status on route change
   useEffect(() => {
     setIsLoggedIn(!!localStorage.getItem("user"));
   }, [location]);
@@ -475,10 +499,9 @@ function Layout({ children, showHero }) {
         <span className="footer-copy">© {new Date().getFullYear()} Colti Group. All rights reserved.</span>
         <div className="footer-links">
           <Link to="/">Showroom</Link>
-          <Link to="/addproducts">Add Car</Link>
           <Link to="/signin">Sign In</Link>
           <Link to="/signup">Register</Link>
-          <Link to="/aboutus">Aboutus</Link>
+          <Link to="/aboutus">About Us</Link>
         </div>
       </footer>
     </>
@@ -499,6 +522,8 @@ function AppRoutes() {
         <Route path="/makepayment" element={<Makepayment />} />
         <Route path="/aboutus" element={<Aboutus/>} />
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/userdashboard" element={<UserDashboard />} />
         <Route path="*" element={<Notfound />} />
       </Routes>
     </Layout>

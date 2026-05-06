@@ -57,9 +57,37 @@ const styles = `
     font-size: 1.6em;
     color: #fff;
     text-align: center;
-    margin: 0 0 10px;
+    margin: 0 0 14px;
     letter-spacing: 1px;
     text-transform: uppercase;
+  }
+  .role-toggle {
+    display: flex;
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 40px;
+    padding: 4px;
+    margin-bottom: 16px;
+    gap: 4px;
+  }
+  .role-btn {
+    flex: 1;
+    height: 32px;
+    border: none;
+    border-radius: 40px;
+    font-size: 0.78em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s;
+    background: transparent;
+    color: #444;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  .role-btn.active {
+    background: #fff;
+    color: #000;
   }
   .status {
     text-align: center;
@@ -156,10 +184,13 @@ const styles = `
   .switch-link a:hover { opacity: 0.7; }
 `;
 
+const ADMIN_CODE = "COLTI2026";
+
 const Signin = () => {
+  const [role, setRole] = useState("user");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+  const [adminCode, setAdminCode] = useState("");
   const [loading, setLoading] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -172,6 +203,12 @@ const Signin = () => {
     setError("");
     setSuccess("");
 
+    if (role === "admin" && adminCode !== ADMIN_CODE) {
+      setLoading("");
+      setError("Invalid admin code. Access denied.");
+      return;
+    }
+
     try {
       const formdata = new FormData();
       formdata.append("email", email);
@@ -183,8 +220,15 @@ const Signin = () => {
 
       if (response.data.user) {
         localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("role", role);
         setSuccess("Login successful");
-        navigate("/");
+
+        // Match exactly the routes defined in App.js
+        if (role === "admin") {
+          navigate("/admindashboard");
+        } else {
+          navigate("/userdashboard");
+        }
       } else {
         setError("Login Failed. Please try again...");
       }
@@ -205,6 +249,23 @@ const Signin = () => {
           <div className="signin-box">
             <h2>Sign In</h2>
 
+            <div className="role-toggle">
+              <button
+                type="button"
+                className={`role-btn ${role === "user" ? "active" : ""}`}
+                onClick={() => { setRole("user"); setError(""); setAdminCode(""); }}
+              >
+                User
+              </button>
+              <button
+                type="button"
+                className={`role-btn ${role === "admin" ? "active" : ""}`}
+                onClick={() => { setRole("admin"); setError(""); }}
+              >
+                Admin
+              </button>
+            </div>
+
             {loading && <p className="status status-loading">{loading}</p>}
             {success && <p className="status status-success">{success}</p>}
             {error   && <p className="status status-error">{error}</p>}
@@ -221,12 +282,20 @@ const Signin = () => {
                 <label>Password</label>
               </div>
 
+              {role === "admin" && (
+                <div className="input-box">
+                  <input type="password" placeholder=" " required
+                    value={adminCode} onChange={(e) => setAdminCode(e.target.value)} />
+                  <label>Admin Code</label>
+                </div>
+              )}
+
               <div className="forgot-pass">
                 <a href="#">Forgot your password?</a>
               </div>
 
               <button className="signin-btn" type="submit" disabled={!!loading}>
-                {loading ? "Validating..." : "Sign In"}
+                {loading ? "Validating..." : `Sign In as ${role === "admin" ? "Admin" : "User"}`}
               </button>
 
               <div className="switch-link">

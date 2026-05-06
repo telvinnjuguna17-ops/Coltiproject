@@ -125,7 +125,6 @@ const styles = `
     color: #fff;
   }
 
-  /* ── Category Select ── */
   .select-box {
     position: relative;
     margin: 12px 0;
@@ -150,15 +149,8 @@ const styles = `
     border-color: #fff;
     box-shadow: 0 0 0 3px rgba(255,255,255,0.08);
   }
-  /* Style the default (empty) option as placeholder */
-  .select-box select option[value=""] {
-    color: #555;
-  }
-  .select-box select option {
-    background: #111;
-    color: #fff;
-  }
-  /* Floating label for select */
+  .select-box select option[value=""] { color: #555; }
+  .select-box select option { background: #111; color: #fff; }
   .select-box .select-label {
     position: absolute;
     top: 50%;
@@ -177,7 +169,6 @@ const styles = `
     padding: 0 6px;
     color: #fff;
   }
-  /* Custom chevron icon */
   .select-chevron {
     position: absolute;
     right: 14px;
@@ -192,9 +183,7 @@ const styles = `
     transform: translateY(-50%) rotate(180deg);
   }
 
-  .file-box {
-    margin: 12px 0;
-  }
+  .file-box { margin: 12px 0; }
   .file-label {
     display: block;
     font-size: 0.72em;
@@ -217,11 +206,7 @@ const styles = `
     transition: border-color 0.3s;
   }
   .file-input:focus,
-  .file-input:hover {
-    border-color: #fff;
-    outline: none;
-    color: #fff;
-  }
+  .file-input:hover { border-color: #fff; outline: none; color: #fff; }
 
   .add-btn {
     width: 100%;
@@ -270,21 +255,28 @@ const Addproducts = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
-  // ── Auth guard: redirect to /signin if not logged in ──
+  // ── Auth guard: admin only ──
   useEffect(() => {
     const user = localStorage.getItem("user");
+    const role = localStorage.getItem("role");
     if (!user) {
       navigate("/signin", { replace: true });
+    } else if (role !== "admin") {
+      navigate("/", { replace: true }); // non-admins go to showroom
     }
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Runtime guard in case user logs out in another tab
     const user = localStorage.getItem("user");
+    const role = localStorage.getItem("role");
     if (!user) {
       navigate("/signin", { replace: true });
+      return;
+    }
+    if (role !== "admin") {
+      navigate("/", { replace: true });
       return;
     }
 
@@ -372,7 +364,6 @@ const Addproducts = () => {
                 <label>Price (KES)</label>
               </div>
 
-              {/* ── Category Dropdown ── */}
               <div className={`select-box${product_category ? " has-value" : ""}`}>
                 <select
                   required
