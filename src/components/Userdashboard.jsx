@@ -45,6 +45,19 @@ const styles = `
     height: 36px;
   }
 
+  /* ── Greeting ── */
+  .user-dash-greeting {
+    text-align: center;
+    font-size: 0.85em;
+    color: #555;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .user-dash-greeting span {
+    color: #fff;
+    font-weight: 600;
+  }
+
   .user-dash-name {
     font-size: 1.3em;
     font-weight: 800;
@@ -170,6 +183,8 @@ const UserDashboard = () => {
 
   if (!user) return null;
 
+  const displayName = user.username || user.name || "Member";
+
   return (
     <>
       <style>{styles}</style>
@@ -184,9 +199,12 @@ const UserDashboard = () => {
             </svg>
           </div>
 
-          <div className="user-dash-name">
-            {user.username || user.name || "Member"}
+          {/* Greeting */}
+          <div className="user-dash-greeting">
+            Hi, <span>{displayName}</span>! Welcome back.
           </div>
+
+          <div className="user-dash-name">{displayName}</div>
           <div className="user-dash-role">Colti Group Member</div>
           <div className="user-subline" />
 

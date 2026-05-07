@@ -33,6 +33,19 @@ const styles = `
     letter-spacing: 1px;
     margin-top: 4px;
   }
+
+  /* ── Greeting ── */
+  .admin-greeting {
+    font-size: 0.82em;
+    color: #555;
+    letter-spacing: 0.5px;
+    margin-top: 6px;
+  }
+  .admin-greeting span {
+    color: #fff;
+    font-weight: 600;
+  }
+
   .admin-badge {
     background: #fff;
     color: #000;
@@ -280,12 +293,22 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState({ type: "", text: "" });
   const [editProduct, setEditProduct] = useState(null);
+  const [adminName, setAdminName] = useState("");
 
-  // Auth guard
+  // Auth guard + read admin name
   useEffect(() => {
-    const user = localStorage.getItem("user");
+    const stored = localStorage.getItem("user");
     const role = localStorage.getItem("role");
-    if (!user || role !== "admin") navigate("/signin", { replace: true });
+    if (!stored || role !== "admin") {
+      navigate("/signin", { replace: true });
+      return;
+    }
+    try {
+      const parsed = JSON.parse(stored);
+      setAdminName(parsed.username || parsed.name || parsed.email?.split("@")[0] || "Admin");
+    } catch {
+      setAdminName(stored || "Admin");
+    }
   }, [navigate]);
 
   const fetchProducts = async () => {
@@ -342,6 +365,11 @@ const AdminDashboard = () => {
           <div>
             <div className="admin-title">Admin Dashboard</div>
             <div className="admin-subtitle">Colti Group — Vehicle Management</div>
+            {adminName && (
+              <div className="admin-greeting">
+                Hi, <span>{adminName}</span>! Welcome back.
+              </div>
+            )}
           </div>
           <span className="admin-badge">Admin</span>
         </div>
